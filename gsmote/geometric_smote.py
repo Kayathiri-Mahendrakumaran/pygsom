@@ -181,9 +181,7 @@ class GeometricSMOTE(BaseOverSampler):
 
         # Check random state
         self.random_state_ = check_random_state(self.random_state)
-        print(self.random_state)
-
-       # Create nearest neighbors object for mixed class
+        # Create nearest neighbors object for mixed class
         self.nn_mix_ = check_neighbors_object('nns_mixed', self.k_neighbors)
         # Create nearest neighbors of positive class
         self.nns_pos_ = check_neighbors_object('nns_positive', self.k_neighbors, additional_neighbor=1)
@@ -248,6 +246,7 @@ class GeometricSMOTE(BaseOverSampler):
         for ind, (row, col) in enumerate(zip(rows, cols)):
             created = False
             while not created:
+                proceed = True
 
                 # Define center point
                 center = X_pos[row]
@@ -262,8 +261,14 @@ class GeometricSMOTE(BaseOverSampler):
 
                     # Minority strategy
                     if count_min == points_mix.shape[1]:
-                        surface_point = X_pos[points_pos[row, col]]
-
+                        # surface_point = X_pos[points_pos[row, col]]
+                        remaining_limitation = sampling_limitation[subCluster_label[row]]
+                        if remaining_limitation>0:
+                            sampling_limitation[subCluster_label[row]] = remaining_limitation-1
+                            surface_point = X_pos[points_pos[row, col]]
+                        else:
+                            proceed = False
+                            row = self.random_state_.randint(low=0, high=len(X_pos), size=1)[0]
                     # Combined strategy
                     else:
                         surface_point_pos = X_pos[points_pos[row, col]]
@@ -275,14 +280,15 @@ class GeometricSMOTE(BaseOverSampler):
                         )
 
                     # Append new sample
-                    X_new[ind] = _make_geometric_sample(
-                        center,
-                        surface_point,
-                        self.truncation_factor,
-                        self.deformation_factor,
-                        self.random_state_,
-                    )
-                    created = True
+                    if proceed:
+                        X_new[ind] = _make_geometric_sample(
+                            center,
+                            surface_point,
+                            self.truncation_factor,
+                            self.deformation_factor,
+                            self.random_state_,
+                        )
+                        created = True
                 else:
                     row=self.random_state_.randint(low=0, high=len(X_pos), size=1)[0]
 
@@ -293,7 +299,7 @@ class GeometricSMOTE(BaseOverSampler):
 
     # Handles sub clustering
     def sub_clustering(self, X_pos, n_samples):
-        num_clusters=5
+        num_clusters=4
         num_samples = n_samples * 0.5
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(X_pos)
