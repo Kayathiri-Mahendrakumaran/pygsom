@@ -1,6 +1,7 @@
 # Importing the libraries
 # import sys
 # sys.path.append('/content/pygsom/')
+import datetime
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -14,6 +15,7 @@ import gsmote.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import visualize_data as vs
 import sys
 import pandas as pd
+import xgboost as xgb
 
 sys.path.append('../../')
 
@@ -28,9 +30,13 @@ X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 vs(X_t, y_t, "Original data")
 
 # oversample
+print("Oversampling inprogress...")
 X_train, y_train = GSMOTE.OverSample(X_t, y_t)
 # visualize oversampled data
+print("Oversampling completed")
+print("Plotting oversampled data...")
 vs(X_train, y_train, "Oversampled ")
+print("Plotting completed")
 
 def linear_training():
 
@@ -57,6 +63,19 @@ def gradient_boosting():
     y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
 
     return evaluate("Gradient Boosting", y_test, y_pred)
+
+
+def XGBoost():
+
+    # Fitting Gradient boosting
+    gbc = xgb.XGBClassifier(objective="binary:logistic", random_state=42)
+    gbc.fit(X_train, y_train)
+
+    # Predicting the Test set results
+    y_predict = gbc.predict(X_test)
+    y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
+
+    return evaluate("XGBoost", y_test, y_pred)
 
 
 def KNN():
@@ -110,7 +129,7 @@ def GSOM_Classifier():
 
     gsom1 = GSOM(.83, X_train.shape[1], max_radius=4)
 
-    gsom1.fit(X_train, 100, 50)
+    gsom1.fit(X_train,50, 25)
     gsom1.labelling_gsom(X_train, frame, "Name", "label")
     gsom1.finalize_gsom_label()
 
@@ -122,13 +141,16 @@ def GSOM_Classifier():
 
 performance1 = linear_training()
 performance2 = gradient_boosting()
-performance3 = KNN()
-performance4 = decision_tree()
-performance5 = MLPClassifier()
-performance6 = GSOM_Classifier()
+performance3 = XGBoost()
+performance4 = KNN()
+performance5 = decision_tree()
+performance6 = MLPClassifier()
+performance7 = GSOM_Classifier()
+
 
 labels = ["Classifier", "f_score","g_mean","auc_value"]
-values = [performance1,performance2,performance3,performance4,performance5,performance6]
-
+values = [performance1,performance2,performance3,performance4,performance5,performance6,performance7]
+# values=[performance7]
 scores = pd.DataFrame(values,columns=labels)
+scores.to_csv("output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
 print(scores)
