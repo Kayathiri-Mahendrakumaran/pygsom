@@ -165,7 +165,7 @@ class GeometricSMOTE(BaseOverSampler):
             # selection_strategy='combined',
             k_neighbors=5,
             n_jobs=1,
-            sampling_rate=0.25,
+            sampling_rate=0.3,
     ):
         super(GeometricSMOTE, self).__init__(sampling_strategy=sampling_strategy)
         self.random_state = random_state
@@ -257,7 +257,7 @@ class GeometricSMOTE(BaseOverSampler):
                         count_min = count_min + 1
 
                 # check noisy point
-                if count_min > 1:
+                if count_min != 0:
 
                     # Minority strategy
                     if count_min == points_mix.shape[1]:
@@ -300,7 +300,7 @@ class GeometricSMOTE(BaseOverSampler):
     # Handles sub clustering
     def sub_clustering(self, X_pos, n_samples):
         num_clusters=4
-        num_samples = n_samples * 0.5
+        num_samples = n_samples * 0.3
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(X_pos)
         clusters=[]
