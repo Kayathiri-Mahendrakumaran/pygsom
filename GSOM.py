@@ -461,10 +461,10 @@ class GSOM:
         print("Predicted :",class_counter2.most_common(1)[0][0],"Actual",afaf)
         return class_counter2.most_common(1)[0][0]
 
-if __name__ == '__main__':
-    np.random.seed(1)
-    df = pd.read_csv(data_filename)
-    print(df.shape)
+# if __name__ == '__main__':
+    # np.random.seed(1)
+    # df = pd.read_csv(data_filename)
+    # print(df.shape)
 
     # data_training = df.iloc[:, 1:17]
     # gsom = GSOM(.83, 16, max_radius=4)
@@ -472,21 +472,21 @@ if __name__ == '__main__':
     # x= (data_training.to_numpy())
     # gsom.predict(df,"Name","label")
 
-    X, y = pp.preProcess(data_filename)
-    X_f, y_f = GSMOTE.OverSample(X, y)
-    y_f = y_f.astype(int)
-    y1 = np.copy(y_f)
-    y =  np.column_stack([y1,y_f])
-    labels = ["Name", "label"]
-    y = np.vstack((labels,y))
-    frame = pd.DataFrame(y[1:,:],columns=y[0,:])
-    gsom1 = GSOM(.83, X_f.shape[1], max_radius=4)
-
-
-    gsom1.fit(X_f[:-10,:], 100, 50)
-    gsom1.labelling_gsom(X_f[:-10,:],frame.iloc[:-10,:],"Name","label")
-    gsom1.finalize_gsom_label()
-
-    y_pred = gsom1.predict_values(X_f[-10:,:],frame.iloc[-10:,:])
-    print(y_pred)
-    print("complete")
+    # X, y = pp.preProcess(data_filename)
+    # X_f, y_f = GSMOTE.OverSample(X, y)
+    # y_f = y_f.astype(int)
+    # y1 = np.copy(y_f)
+    # y =  np.column_stack([y1,y_f])
+    # labels = ["Name", "label"]
+    # y = np.vstack((labels,y))
+    # frame = pd.DataFrame(y[1:,:],columns=y[0,:])
+    # gsom1 = GSOM(.83, X_f.shape[1], max_radius=4)
+    #
+    #
+    # gsom1.fit(X_f[:-10,:], 100, 50)
+    # gsom1.labelling_gsom(X_f[:-10,:],frame.iloc[:-10,:],"Name","label")
+    # gsom1.finalize_gsom_label()
+    #
+    # y_pred = gsom1.predict_values(X_f[-10:,:],frame.iloc[-10:,:])
+    # print(y_pred)
+    # print("complete")

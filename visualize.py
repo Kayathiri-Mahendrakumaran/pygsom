@@ -40,7 +40,7 @@ def show_gsom(output, max_count,index_col,label_col):
 
     ax.set_title("GSOM Map")
     #plt.show()
-    plt.savefig("output/gsom_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".png",dpi=1200)
+    # plt.savefig("output/gsom_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".png",dpi=1200)
 
 def findColor(count_0, count_1):
     if count_0 > count_1:

@@ -52,9 +52,7 @@ def preProcess(filename):
 
 def pre_process(filename):
     df = pd.read_csv(filename)
-    X = df.iloc[:, [0, 1, 2, 3, 4, 5, 6]].values
-    sc_X = StandardScaler()
-    X = sc_X.fit_transform(X)
+    X = df.iloc[:, :-1].values
     y = df.iloc[:,-1].values
     return X,y
 
