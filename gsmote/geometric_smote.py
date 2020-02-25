@@ -12,6 +12,7 @@ from imblearn.utils import check_neighbors_object, Substitution
 from imblearn.utils._docstring import _random_state_docstring
 import collections
 from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 from gsmote.comparison_testing import compare_visual
 
 def _make_geometric_sample(
@@ -303,9 +304,23 @@ class GeometricSMOTE(BaseOverSampler):
         num_samples = n_samples * 0.3
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(X_pos)
+        y_kmeans = kmeans.predict(X_pos)
+
+        # db = DBSCAN(eps=0.1, min_samples=3).fit(X_pos)
+        # core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+        # core_samples_mask[db.core_sample_indices_] = True
+        # labels = db.labels_
+        #
+        # # Number of clusters in labels, ignoring noise if present.
+        # n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+        # n_noise_ = list(labels).count(-1)
+        # print(labels)
+        # print(n_clusters_)
+        # print(n_noise_)
+
         clusters=[]
         range_oversample = []
-        y_kmeans = kmeans.predict(X_pos)
+        # y_kmeans = kmeans.predict(X_pos)
         for i in range(num_clusters):
             cluster = X_pos[y_kmeans == i]
             clusters.append(cluster)

@@ -60,10 +60,10 @@ class MeanClassifier(BaseEstimator,ClassifierMixin):
 
 from sklearn.model_selection import GridSearchCV, train_test_split
 
-date_file = "../../data/ecoli.csv".replace('\\','/')
+date_file = "../../data/adultmini.csv".replace('\\','/')
 # date_file = "content/pygsom/data/ecoli.csv".replace('\\','/')
 
-X,y = pp.pre_process(date_file)
+X,y = pp.preProcess(date_file)
 #try different combination of hyper paramenters
 parameters = [{'truncation_factor':[-1],'deformation_factor':[0],'k_neighbors':[3],
                'sampling_rate':[0.3], 'n_estimators':[1000], 'learning_rate':[0.01],'max_depth':[3]}]
@@ -72,20 +72,20 @@ gs.fit(X,y)
 
 params = gs.best_params_
 print (params)
-
-#find performance
-X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state = 0)
-gsmote = GeometricSMOTE(random_state=1, truncation_factor=params["truncation_factor"],
-                                     deformation_factor=params["deformation_factor"], k_neighbors=params["k_neighbors"],
-                                     sampling_rate=params["sampling_rate"])
-X_train,y_train = gsmote.fit_resample(X_t,y_t)
-# Fitting Gradient boosting
-gbc = GradientBoostingClassifier (n_estimators=params["n_estimators"], learning_rate = params["learning_rate"],
-                                  max_depth = params["max_depth"])
-gbc.fit(X_train, y_train)
-
-# Predicting the Test set results
-y_predict = gbc.predict(X_test)
-y_pred = np.where(y_predict.astype(int)>0.5,1,0)
-
-evaluate("Gradient Boosting",y_test,y_pred)
+#
+# #find performance
+# X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state = 0)
+# gsmote = GeometricSMOTE(random_state=1, truncation_factor=params["truncation_factor"],
+#                                      deformation_factor=params["deformation_factor"], k_neighbors=params["k_neighbors"],
+#                                      sampling_rate=params["sampling_rate"])
+# X_train,y_train = gsmote.fit_resample(X_t,y_t)
+# # Fitting Gradient boosting
+# gbc = GradientBoostingClassifier (n_estimators=params["n_estimators"], learning_rate = params["learning_rate"],
+#                                   max_depth = params["max_depth"])
+# gbc.fit(X_train, y_train)
+#
+# # Predicting the Test set results
+# y_predict = gbc.predict(X_test)
+# y_pred = np.where(y_predict.astype(int)>0.5,1,0)
+#
+# evaluate("Gradient Boosting",y_test,y_pred)

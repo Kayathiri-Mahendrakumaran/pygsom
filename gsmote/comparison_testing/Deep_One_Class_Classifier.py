@@ -64,4 +64,4 @@ plt.plot(range(len(x_test)), [thred]*len(x_test), c='black')
 
 
 plt.title("Deep One Class Classifier")
-plt.savefig("output/one_class_classifier_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".png",dpi=1200)
+# plt.savefig("../../output/one_class_classifier_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".png",dpi=1200)

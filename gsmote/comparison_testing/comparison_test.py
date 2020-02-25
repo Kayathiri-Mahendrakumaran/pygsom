@@ -133,23 +133,24 @@ def GSOM_Classifier():
     gsom1.labelling_gsom(X_train, frame, "Name", "label")
     gsom1.finalize_gsom_label()
 
-    y_pred = gsom1.predict_values(X_test, y_test)
+    y_pred = gsom1.predict_values(X_test)
     # print(y_pred)
     # print("complete")
     return evaluate("GSOM_Classifier",y_test,np.array(y_pred).astype(int))
 
 
-performance1 = linear_training()
-performance2 = gradient_boosting()
+# performance1 = linear_training()
+# performance2 = gradient_boosting()
 performance3 = XGBoost()
-performance4 = KNN()
-performance5 = decision_tree()
-performance6 = MLPClassifier()
+# performance4 = KNN()
+# performance5 = decision_tree()
+# performance6 = MLPClassifier()
 performance7 = GSOM_Classifier()
 
 
 labels = ["Classifier", "f_score","g_mean","auc_value"]
-values = [performance1,performance2,performance3,performance4,performance5,performance6,performance7]
+# values = [performance1,performance2,performance3,performance4,performance5,performance6,performance7]
+values = [performance3,performance7]
 # values=[performance7]
 scores = pd.DataFrame(values,columns=labels)
 scores.to_csv("output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")

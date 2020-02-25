@@ -33,7 +33,7 @@ class MeanClassifier(BaseEstimator,ClassifierMixin):
         self.sampling_rate = sampling_rate
         self.smooth_iteration = smooth_iteration
         self.training_iteration = training_iteration
-        self.gsom = GSOM(0.83,55, max_radius=4)
+        self.gsom = GSOM(0.86,55, max_radius=4)
         self.gsmote = GeometricSMOTE(random_state=1, truncation_factor=self.truncation_factor,
                                      deformation_factor=self.deformation_factor, k_neighbors=self.k_neighbors,
                                      sampling_rate= self.sampling_rate)
@@ -47,8 +47,8 @@ class MeanClassifier(BaseEstimator,ClassifierMixin):
     # def _meaning(self, x):
     #     return True
 
-    def predict(self, X,y):
-        return self.gsom.predict_values(X,y)
+    def predict(self, X):
+        return self.gsom.predict_values(X)
 
     # def score(self, X, y=None):
     #     # counts number of values bigger than mean
