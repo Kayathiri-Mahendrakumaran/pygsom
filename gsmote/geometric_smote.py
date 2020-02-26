@@ -12,8 +12,8 @@ from imblearn.utils import check_neighbors_object, Substitution
 from imblearn.utils._docstring import _random_state_docstring
 import collections
 from sklearn.cluster import KMeans
-from sklearn.cluster import DBSCAN
-from gsmote.comparison_testing import compare_visual
+import matplotlib.pyplot as plt
+
 
 def _make_geometric_sample(
         center, surface_point, truncation_factor, deformation_factor, random_state
@@ -166,7 +166,7 @@ class GeometricSMOTE(BaseOverSampler):
             # selection_strategy='combined',
             k_neighbors=5,
             n_jobs=1,
-            sampling_rate=0.3,
+            sampling_rate=0.25,
     ):
         super(GeometricSMOTE, self).__init__(sampling_strategy=sampling_strategy)
         self.random_state = random_state
@@ -242,6 +242,7 @@ class GeometricSMOTE(BaseOverSampler):
         self.nn_mix_.fit(X)
         points_mix = self.nn_mix_.kneighbors(X_pos)[1]
 
+
        # Generate new samples
         X_new = np.zeros((n_samples, X.shape[1]))
         for ind, (row, col) in enumerate(zip(rows, cols)):
@@ -267,9 +268,12 @@ class GeometricSMOTE(BaseOverSampler):
                         if remaining_limitation>0:
                             sampling_limitation[subCluster_label[row]] = remaining_limitation-1
                             surface_point = X_pos[points_pos[row, col]]
+                            self.truncation_factor = 1.0
                         else:
                             proceed = False
                             row = self.random_state_.randint(low=0, high=len(X_pos), size=1)[0]
+
+                            
                     # Combined strategy
                     else:
                         surface_point_pos = X_pos[points_pos[row, col]]
@@ -279,6 +283,10 @@ class GeometricSMOTE(BaseOverSampler):
                         surface_point = (
                             surface_point_neg if radius_pos > radius_neg else surface_point_pos
                         )
+                        if (radius_pos > radius_neg):
+                            self.truncation_factor = -1.0
+                        else:
+                            self.truncation_factor = 0.4
 
                     # Append new sample
                     if proceed:
@@ -301,23 +309,10 @@ class GeometricSMOTE(BaseOverSampler):
     # Handles sub clustering
     def sub_clustering(self, X_pos, n_samples):
         num_clusters=4
-        num_samples = n_samples * 0.3
+        num_samples = n_samples * 0.25
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(X_pos)
         y_kmeans = kmeans.predict(X_pos)
-
-        # db = DBSCAN(eps=0.1, min_samples=3).fit(X_pos)
-        # core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-        # core_samples_mask[db.core_sample_indices_] = True
-        # labels = db.labels_
-        #
-        # # Number of clusters in labels, ignoring noise if present.
-        # n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-        # n_noise_ = list(labels).count(-1)
-        # print(labels)
-        # print(n_clusters_)
-        # print(n_noise_)
-
         clusters=[]
         range_oversample = []
         # y_kmeans = kmeans.predict(X_pos)

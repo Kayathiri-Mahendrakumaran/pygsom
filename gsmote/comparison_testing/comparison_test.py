@@ -19,7 +19,7 @@ import xgboost as xgb
 
 sys.path.append('../../')
 
-date_file = "../../data/adultmini.csv".replace('\\', '/')
+date_file = "../../data/adult2.csv".replace('\\', '/')
 # date_file = "content/pygsom/data/ecoli.csv".replace('\\', '/')
 
 X, y = pp.preProcess(date_file)
@@ -27,7 +27,7 @@ X, y = pp.preProcess(date_file)
 X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 # Visualize original data
-vs(X_t, y_t, "Original data")
+# vs(X_t, y_t, "Original data")
 
 # oversample
 print("Oversampling inprogress...")
@@ -35,7 +35,7 @@ X_train, y_train = GSMOTE.OverSample(X_t, y_t)
 # visualize oversampled data
 print("Oversampling completed")
 print("Plotting oversampled data...")
-vs(X_train, y_train, "Oversampled ")
+# vs(X_train, y_train, "Oversampled ")
 print("Plotting completed")
 
 def linear_training():
@@ -127,7 +127,7 @@ def GSOM_Classifier():
 
     from GSOM import GSOM
 
-    gsom1 = GSOM(.83, X_train.shape[1], max_radius=4)
+    gsom1 = GSOM(1.0, X_train.shape[1], max_radius=4)
 
     gsom1.fit(X_train,50, 25)
     gsom1.labelling_gsom(X_train, frame, "Name", "label")
@@ -147,20 +147,20 @@ def Deep_One_Class_Classifier():
     OKscore = gmm.score_samples(X_train[y_train=='1'])
     threshold = OKscore.mean() -  1* OKscore.std()
 
-    Trainer=np.column_stack((y_train[y_train=='1'],OKscore))
-    Trainer = np.vstack((["y_train","Score"],Trainer))
-    Train_Frame=pd.DataFrame(Trainer[1:,:],columns=Trainer[0,:])
-    Train_Stat = Train_Frame["Score"]
-    asd=pd.Series(OKscore).describe()
-    # vcng=pd.Series(OKscore[y_train=='0']).describe()
+    # Trainer=np.column_stack((y_train[y_train=='1'],OKscore))
+    # Trainer = np.vstack((["y_train","Score"],Trainer))
+    # Train_Frame=pd.DataFrame(Trainer[1:,:],columns=Trainer[0,:])
+    # Train_Stat = Train_Frame["Score"]
+    # asd=pd.Series(OKscore).describe()
+    # # vcng=pd.Series(OKscore[y_train=='0']).describe()
 
     score = gmm.score_samples(X_test)
 
-    Tester = np.column_stack((y_test, score))
+    # Tester = np.column_stack((y_test, score))
 
 
-    Test_Frame = pd.DataFrame(Tester,columns=["y_test","Score"])
-    Test_Stat = Test_Frame["Score"].describe()
+    # Test_Frame = pd.DataFrame(Tester,columns=["y_test","Score"])
+    # Test_Stat = Test_Frame["Score"].describe()
 
 
     # majority_correct = len(score[(y_test == 1) & (score > thred)])
@@ -168,21 +168,28 @@ def Deep_One_Class_Classifier():
     return evaluate("Deep_One_Cls_Classifier",y_test,y_pred)
 
 
-
-
+#
+performance7 = GSOM_Classifier()
 performance1 = linear_training()
 performance2 = gradient_boosting()
 performance3 = XGBoost()
-# performance4 = KNN()
-# performance5 = decision_tree()
-# performance6 = MLPClassifier()
-performance7 = GSOM_Classifier()
+performance4 = KNN()
+performance5 = decision_tree()
+performance6 = MLPClassifier()
 performance8 = Deep_One_Class_Classifier()
 
 
 labels = ["Classifier", "f_score","g_mean","auc_value"]
-values = [performance1,performance2,performance3,performance4,performance5,performance6,performance7,performance8]
+values = [
+    performance1,
+    performance2,
+    performance3,
+    performance4,
+    performance5,
+    performance6,
+    performance7,
+    performance8
+    ]
 # values=[performance9]
 scores = pd.DataFrame(values,columns=labels)
-scores.to_csv("output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
 print(scores)

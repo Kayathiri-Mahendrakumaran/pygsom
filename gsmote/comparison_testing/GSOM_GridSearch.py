@@ -1,5 +1,6 @@
 # import sys
 # sys.path.append('/content/pygsom/')
+import pandas as pd
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 import gsmote.preprocessing as pp
@@ -17,30 +18,38 @@ class MeanClassifier(BaseEstimator,ClassifierMixin):
 
     def __init__(
             self,
-            truncation_factor=1.0,
-            deformation_factor=0.0,
-            k_neighbors=5,
-            sampling_rate=0.3,
             smooth_iteration=25,
             training_iteration=50,
+            spreading_factor = 0.83,
+            FD=0.1,
+            learning_rate=0.3,
+            smooth_learning_factor=0.8
     ):
         """
         Called when initializing the classifier
         """
-        self.truncation_factor = truncation_factor
-        self.deformation_factor = deformation_factor
-        self.k_neighbors = k_neighbors
-        self.sampling_rate = sampling_rate
         self.smooth_iteration = smooth_iteration
+        self.spreading_factor =spreading_factor
         self.training_iteration = training_iteration
-        self.gsom = GSOM(0.86,55, max_radius=4)
-        self.gsmote = GeometricSMOTE(random_state=1, truncation_factor=self.truncation_factor,
-                                     deformation_factor=self.deformation_factor, k_neighbors=self.k_neighbors,
-                                     sampling_rate= self.sampling_rate)
+        self.FD = FD
+        self.learning_rate = learning_rate
+        self.smooth_learning_factor = smooth_learning_factor
+        self.gsom = GSOM(self.spreading_factor,55, max_radius=4, FD=self.FD,learning_rate=self.learning_rate,
+                         smooth_learning_factor=self.smooth_learning_factor)
+        self.gsmote = GeometricSMOTE(random_state=1, truncation_factor=1.0,
+                                     deformation_factor=0, k_neighbors=5,
+                                     sampling_rate= 0.3)
 
     def fit(self, X, y):
         X_train, y_train = self.gsmote.fit_resample(X, y)
+        y1 = np.copy(y_train)
+        y = np.column_stack([y1, y_train])
+        labels = ["Name", "label"]
+        y = np.vstack((labels, y))
+        frame = pd.DataFrame(y[1:, :], columns=y[0, :])
         self.gsom.fit(X_train,self.training_iteration,self.smooth_iteration)
+        self.gsom.labelling_gsom(X_train, frame, "Name", "label")
+        self.gsom.finalize_gsom_label()
         return self
 
 
@@ -57,14 +66,14 @@ class MeanClassifier(BaseEstimator,ClassifierMixin):
 
 from sklearn.model_selection import GridSearchCV, train_test_split
 
-date_file = "../../data/adult.csv".replace('\\','/')
+date_file = "../../data/adultmini.csv".replace('\\','/')
 # date_file = "content/pygsom/data/adult.csv".replace('\\','/')
 
 X,y = pp.preProcess(date_file)
 
 # try different combination of hyper paramenters
-parameters = [{'truncation_factor':[-1,1],'deformation_factor':[0,0.5,1],'k_neighbors':[3,4],
-               'sampling_rate':[0.3,0.25,0.2], 'smooth_iteration':[25,50],'training_iteration':[50,100]}]
+parameters = [{'smooth_iteration':[12,25],'training_iteration':[25,50],'spreading_factor':[0.83,0.53,0.7],'FD':[0.1,0.05,0.2],
+               'learning_rate':[0.3,0.4,0.5],'smooth_learning_factor':[0.8,0.6,0.7]}]
 gs = GridSearchCV(MeanClassifier(), parameters)
 gs.fit(X,y)
 

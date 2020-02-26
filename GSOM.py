@@ -354,7 +354,7 @@ class GSOM:
 
         return self.node_labels
 
-    def predict_values(self, data,data_y):
+    def predict_values(self, data):
         """
         method to test the GSOM map
         :param data:
@@ -365,7 +365,7 @@ class GSOM:
         # Iterate all data points
         for data_index in range(data.shape[0]):
             y_pred.append(self.winner_identification_and_neighbourhood_update_predict_values(
-                data_index, data, data_y))
+                data_index, data))
 
         return y_pred
 
@@ -415,7 +415,7 @@ class GSOM:
             self.node_labels.loc[index, "Name"] = x
 
 
-    def winner_identification_and_neighbourhood_update_predict_values(self, data_index, data,data_y):
+    def winner_identification_and_neighbourhood_update_predict_values(self, data_index, data):
 
         # q=self.node_list
         # w=self.node_count
@@ -456,9 +456,9 @@ class GSOM:
             class_counter2[z]+=1
         asag=class_counter2.most_common(1)
         # afaf=data_y.iloc[data_index,1]
-        afaf=data_y[data_index]
+        # afaf=data_y[data_index]
 
-        print("Predicted :",class_counter2.most_common(1)[0][0],"Actual",afaf)
+        # print("Predicted :",class_counter2.most_common(1)[0][0],"Actual",afaf)
         return class_counter2.most_common(1)[0][0]
 
 # if __name__ == '__main__':
